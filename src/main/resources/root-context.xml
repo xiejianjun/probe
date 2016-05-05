@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+			http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+			http://www.springframework.org/schema/context 
+			http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<context:property-placeholder location="classpath:appconfig.properties" />
+	<bean id="createDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="${c3p0.driverClass}" />
+		<property name="jdbcUrl" value="${c3p0.create.url}" />
+		<property name="user" value="${c3p0.username}" />
+		<property name="password" value="${c3p0.password}" />
+		<property name="initialPoolSize" value="${c3p0.initialPoolSize}" />
+		<property name="maxPoolSize" value="1" />
+		<property name="minPoolSize" value="1" />
+		<property name="acquireIncrement" value="${c3p0.acquireIncrement}" />
+		<property name="maxStatements" value="${c3p0.maxStatements}" />
+		<property name="preferredTestQuery" value="${c3p0.preferredTestQuery}" />
+		<property name="maxConnectionAge" value="${c3p0.maxConnectionAge}" />
+		<property name="testConnectionOnCheckout" value="${c3p0.testConnectionOnCheckout}" />
+	</bean>
+	<bean id="boostrapService" class="net.duckling.probe.service.boostrap.BootstrapService" init-method="bootstrap">
+		<constructor-arg><ref bean="createDataSource"/></constructor-arg>
+		<constructor-arg><value>${database}</value></constructor-arg>
+		<constructor-arg><value>product</value></constructor-arg>
+		<constructor-arg><value>classpath:probe.sql</value></constructor-arg>
+	</bean>
+
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="${c3p0.driverClass}" />
+		<property name="jdbcUrl" value="${c3p0.url}" />
+		<property name="user" value="${c3p0.username}" />
+		<property name="password" value="${c3p0.password}" />
+		<property name="initialPoolSize" value="${c3p0.initialPoolSize}" />
+		<property name="maxPoolSize" value="${c3p0.maxPoolSize}" />
+		<property name="minPoolSize" value="${c3p0.minPoolSize}" />
+		<property name="acquireIncrement" value="${c3p0.acquireIncrement}" />
+		<property name="maxStatements" value="${c3p0.maxStatements}" />
+		<property name="preferredTestQuery" value="${c3p0.preferredTestQuery}" />
+		<property name="maxConnectionAge" value="${c3p0.maxConnectionAge}" />
+		<property name="testConnectionOnCheckout" value="${c3p0.testConnectionOnCheckout}" />
+	</bean>
+
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+	</bean>
+
+	<bean id="namedParameterJdbcTemplate"
+		class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+		<constructor-arg>
+			<ref bean="dataSource" />
+		</constructor-arg>
+	</bean>
+
+	<bean id="baseDAO" abstract="true">
+		<property name="jdbcTemplate" ref="jdbcTemplate" />
+		<property name="namedParameterJdbcTemplate" ref="namedParameterJdbcTemplate" />
+	</bean>
+
+	<bean id="watchedDataDao"
+		class="net.duckling.probe.service.watcheddata.impl.WatchedDataDAO"
+		parent="baseDAO" />
+	<bean id="watchedDataService"
+		class="net.duckling.probe.service.watcheddata.impl.WatchedDataServiceImpl">
+		<property name="watchedDataDao" ref="watchedDataDao" />
+	</bean>
+
+	<bean id="statsUrlDao"
+		class="net.duckling.probe.service.statsurl.impl.StatsUrlDao" 
+		parent="baseDAO"/>
+	<bean id="statsUrlDataService"
+		class="net.duckling.probe.service.statsurl.impl.StatsUrlServiceImpl">
+		<property name="statsUrlDao" ref="statsUrlDao"/>		
+	</bean>
+		
+	<bean id="statsValueDao"
+		class="net.duckling.probe.service.statsvalue.impl.StatsValueDao" 
+		parent="baseDAO"/>
+	<bean id="statsValueDataService"
+		class="net.duckling.probe.service.statsvalue.impl.StatsValueServiceImpl">
+		<property name="statsValueDao" ref="statsValueDao"/>		
+	</bean>
+	<bean id="watchedUrlDao"
+		class="net.duckling.probe.service.watchedurl.impl.WatchedUrlDao"
+		parent="baseDAO" />
+	<bean id="watchedUrlService"
+		class="net.duckling.probe.service.watchedurl.impl.WatchedUrlServiceImpl">
+		<property name="watchedUrlDao" ref="watchedUrlDao" />
+	</bean>
+	
+	<bean id="collectorDao" class="net.duckling.probe.service.collector.impl.CollectorDAO"
+		parent="baseDAO" />
+	<bean id="collectorService"
+		class="net.duckling.probe.service.collector.impl.CollectorServiceImpl">
+		<property name="collectorDao" ref="collectorDao" />
+	</bean>
+
+	<bean id="productDao" class="net.duckling.probe.service.product.impl.ProductDAO"
+		parent="baseDAO" />
+	<bean id="productService"
+		class="net.duckling.probe.service.product.impl.ProductServiceImpl">
+		<property name="productDao" ref="productDao" />
+	</bean>
+
+	<bean id="dataSourceDao"
+		class="net.duckling.probe.service.datasource.impl.DataSourceDAO"
+		parent="baseDAO" />
+	<bean id="propertiesDAO"
+		class="net.duckling.probe.service.datasource.impl.DataPropertiesDAO"
+		parent="baseDAO" />
+	<bean id="dataSourceService"
+		class="net.duckling.probe.service.datasource.impl.DataSourceServiceImpl">
+		<property name="propDao" ref="propertiesDAO" />
+		<property name="dataSourceDao" ref="dataSourceDao" />
+	</bean>
+	<bean id="loginService" class="net.duckling.probe.service.login.impl.LoginServiceImpl">
+		<property name="oauthProp">
+			<map>
+				<entry key="client_id" value="${oauth.umt.client_id}"/>
+				<entry key="client_secret" value="${oauth.umt.client_secret}"/>
+				<entry key="redirect_uri" value="${oauth.umt.redirect_uri}"/>
+				<entry key="access_token_URL" value="${oauth.umt.access_token_URL}"/>
+				<entry key="authorize_URL" value="${oauth.umt.authorize_URL}"/>
+				<entry key="scope" value="${oauth.umt.scope}"/>
+				<entry key="theme" value="${oauth.umt.theme}"/>
+				<entry key="logout_URL" value="${oauth.umt.logout_URL}"/>
+				<entry key="probe.baseUrl" value="${probe.baseUrl}"/>
+			</map>
+		</property>
+	</bean>
+	<bean id="permissionChecker"
+		class="net.duckling.probe.ui.permission.ProbePermissionChecker">
+		<property name="adminUsers" value="${admin.users}" />
+	</bean>
+	<bean id="denyListener" class="net.duckling.probe.ui.permission.ProbeDenyListener">
+		<property name="baseUrl" value="${probe.baseUrl}"/>
+	</bean>
+</beans>

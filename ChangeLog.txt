@@ -1,0 +1,139 @@
+
+2016-4-15 dongbo@cstnet.cn
+*修复了scgrid数据不更新的问题
+
+2016-3-9 version 1.0.7p1
+----------------------------------------------
+2016-3-7 dongbo@cstnet.cn
+* 修复了一些数据项无法拉取信息的bug
+* 修复了修改collector界面的bug
+
+2016-1-26 version 1.0.7
+----------------------------------------------
+2015-12-4 dongbo@cstnet.cn
+* 添加了产品、监测项、数据源的删除确认
+* 添加了可视化监测项接口，通过访问api/chart/{productName}/{collectorName}可视化该监测项
+
+2015-11-24 version 1.0.6p2
+-----------------------------------------------
+2015-11-24 kevin@cstnet.cn
+* 根据数值类型的统计方式调整，修改monitor展示的js代码，字段统一调整为count
+
+2015-11-17 dongbo@cstnet.cn
+* 修复watch_time时间显示的问题
+* 修复了访问api/data/{productName}数据重复的问题
+
+2015-11-16 version 1.0.6p1
+----------------------------------------------
+2015-11-16 dongbo@cstnet.cn
+* 修复了api/data无法访问value类型数据的问题
+* 修复了stats/{productName}列出的collector name有误的问题
+
+2015-11-16 version 1.0.6  增加对值数据的统计功能支持
+--------------------------------------------------------------
+2015-11-09 dongbo@cstnet.cn
+* 修改存储过程calc_url_data
+* 修改calc_url event事件
+* 增加的value插入的存储过程
+* collector表添加了datatype列
+* 添加了calc_value_data表和value_watch_data表，以上部分详见probe.sql
+* 添加了stats访问value类型数据的接口和url接口访问方法一致
+* 添加了api/stats/{productName}的接口，返回该产品下所有能用stats访问的collector的name
+* 添加了watched_data导入到value_watch_data以及并计算到calc_value_data的存储过程,参数格式为('%y-%m-%d')表示导入数据的起始日期
+* 添加了判断json数据是否是数值类型的mysql function
+2015-10-28 version 1.0.5
+--------------------------------------------------------
+2015-10-28 kevin@cstnet.cn
+* 合并了monitor监控可视化模块，在probe中统一发布。
+* 科技云服务监控页面，增加了对于服务正常率的可视化展示。
+* 增加了对组织通讯录的监控数据（值）展示。
+
+2015-10-22 version 1.0.4
+--------------------------------------------------
+2015-10-21 dongbo@cstnet.cn
+* 修复了api/stats/{productName}/{collectorName}访问月份的数据出现的问题
+* 增加了无年月日参数访问api/stats/{productName}/{collectorName}的数据接口
+
+2015-10-14 version 1.0.3
+------------------------------------------
+2015-09-28 dongbo@cstnet.cn
+* 数据库增加了product和collector的description字段，已添加到probe.sql中
+ALTER TABLE product ADD COLUMN description text default NULL;
+ALTER TABLE collector ADD COLUMN description text default NULL;
+* 增加了product的修改选项
+* 修复了collector修改选项关闭按钮无法使用的问题，改成了ajax请求方式修改collector和product选项
+* 修改了collector无法修改name的问题
+* 设置了product和collector的联表删除
+* 增加了邮件预警功能，url监控连续三次访问失败时，即发生邮件通知，当连续三次访问恢复后，则发送恢复通知
+* 邮件发件人在WEB-INF/classes/appconfig.properties中设置
+    配置项  
+#mail-service
+email.mail.smtp.host=smtp.cstnet.cn
+email.mail.smtp.auth=true
+email.mail.pop3.host=pop.cstnet.cn
+email.fromAddress=duckling-default@cnic.cn
+email.username=duckling-default@cnic.cn
+email.password=
+
+2015-09-18 version 1.0.2p2
+------------------------------------------
+2015-09-16 dongbo@cstnet.cn
+* 修改了访问http://{hostname}/probe/api/stats/{productName}/{collectorName}?[day|month|year]=value，
+     返回json的格式，和之前的collector的json格式保持了一致
+
+version 1.0.2p1
+-----------------------------------------
+2015-09-14 dongbo@cstnet.cn
+修复了productName/collectorName无返回数据的问题
+
+version 1.0.2
+-----------------------------------------------------
+2015-09-14 kevin
+修改probe.sql，增加存储过程；帮助页面更新。
+
+2015-09-14 dongbo@cstnet.cn
+* 按天数访问近几天url统计数据的链接修改为probe/api/stats/{productName}/{collectorName}?day=天数
+* 按月数访问近几月url统计数据的链接修改为 probe/api/stats/{productName}/{collectorName}?month=月数
+* 按年数访问近几年url统计数据的链接修改为 probe/api/stats/{productName}/{collectorName}?year=年数
+
+2015-09-11 dongbo@cstnet.cn
+* 增加了按天数访问近几天url统计数据的链接 probe/api/stats/{productName}/{collectorName}/day/{days}
+* 增加了按月数访问近几月url统计数据的链接 probe/api/stats/{productName}/{collectorName}/month/{months}
+* 增加了按年数访问近几年url统计数据的链接 probe/api/stats/{productName}/{collectorName}/year/{years}
+
+2015-09-10 dongbo@cstnet.cn
+* 增加了定时计算url的表，calc_url_data;已添加到probe.sql中
+* 创建了计算url访问的平均值的存储过程。
+  	DELIMITER // 
+	CREATE PROCEDURE `calc_url_data` ()
+	BEGIN
+	insert into calc_url_data (productId,collectorId,health,avgTime,method,calcTime) (select productId,collectorId,avg(availability),avg(responsetime),method,curdate()-1 from url_watch_data where date_format(watch_time,'%y-%m-%d')=(select curdate() - INTERVAL 1 DAY ) group by collectorId);
+	END ; 
+* 创建了mysql event定时执行存储过程calc_url_data()的任务;每天凌晨一点开始执行，统计上一天的url访问的平均值
+	DELIMITER // 
+	CREATE  EVENT  IF NOT EXISTS  calc_url
+	ON  SCHEDULE  EVERY  1  day  STARTS date_add(curdate(),interval 1 hour)
+	ON  COMPLETION  PRESERVE  ENABLE
+	DO
+	BEGIN
+	CALL calc_url_data();
+	END
+* 开启mysql的event Scheduler机制，否则event无法执行
+	SET GLOBAL event_scheduler = 1;
+
+2015-09-08 dongbo@cstnet.cn
+* 增加了对url访问的相应类
+* 增加了对添加url访问的相应的页面
+* 修改了job类中的方法，添加了DbDataPlate模板类，作为watchedData,watchedUrl的父类
+* 增加了存储访问url数据的数据表，url_watch_data，已添加到probe.sql中
+
+version 1.0.1
+-------------------------------------------------------------------------------
+2015-01-15 xiejj@cstnet.cn
+* 对API接口获取的数据顺序进行了保留。
+2015-01-14 xiejj@cstnet.cn
+* 修改了数据库查询语句，对查询数据效率进行了优化。
+	alter table watched_data add index `multiIndex` (`productId`,`collectorId`);
+	alter table watched_data add index `collector` (`collectorId`, `id`);
+
+	

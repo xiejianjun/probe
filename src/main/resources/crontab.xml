@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+			http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+			http://www.springframework.org/schema/context 
+			http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+	<!-- 定时任务定义 -->
+	<!-- 线程执行器配置，用于任务注册 -->
+	<bean id="executor"
+		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="10" />
+		<property name="maxPoolSize" value="100" />
+		<property name="queueCapacity" value="500" />
+	</bean>
+
+	<bean id="cronContext" class="net.duckling.probe.ui.cron.CronContext"
+		scope="prototype">
+		<property name="dataSourceService" ref="dataSourceService" />
+	</bean>
+	<bean id="baseTask" abstract="true">
+		<property name="collectorService" ref="collectorService" />
+		<property name="WatchedDataService" ref="watchedDataService" />
+		<property name="WatchedUrlService" ref="watchedUrlService" />
+		<property name="cronContext" ref="cronContext" />
+	</bean>
+	<!-- 5分钟定时器 -->
+	<bean id="fiveMinutesTask" class="net.duckling.probe.ui.cron.CronTask"
+		parent="baseTask">
+		<property name="interval" value="5" />
+	</bean>
+	<bean id="fiveMinutesDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="fiveMinutesTask" />
+		<property name="targetMethod" value="doCollect" />
+	</bean>
+	<bean id="fiveMinutesTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="fiveMinutesDetail" />
+		<property name="cronExpression" value="10 0/5 * * * ?" />
+	</bean>
+
+	<!-- 10分钟定时器 -->
+	<bean id="tenMinutesTask" class="net.duckling.probe.ui.cron.CronTask"
+		parent="baseTask">
+		<property name="interval" value="10" />
+	</bean>
+	<bean id="tenMinutesDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="tenMinutesTask" />
+		<property name="targetMethod" value="doCollect" />
+	</bean>
+	<bean id="tenMinutesTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="tenMinutesDetail" />
+		<property name="cronExpression" value="10 0/10 * * * ?" />
+	</bean>
+
+	<!-- 30分钟定时器 -->
+	<bean id="thirtyMinutesTask" class="net.duckling.probe.ui.cron.CronTask"
+		parent="baseTask">
+		<property name="interval" value="30" />
+	</bean>
+	<bean id="thirtyMinutesDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="thirtyMinutesTask" />
+		<property name="targetMethod" value="doCollect" />
+	</bean>
+	<bean id="thirtyMinutesTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="thirtyMinutesDetail" />
+		<property name="cronExpression" value="10 0/30 * * * ?" />
+	</bean>
+
+	<!-- 1小时定时器 -->
+	<bean id="oneHourTask" class="net.duckling.probe.ui.cron.CronTask"
+		parent="baseTask">
+		<property name="interval" value="60" />
+	</bean>
+	<bean id="oneHourDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="oneHourTask" />
+		<property name="targetMethod" value="doCollect" />
+	</bean>
+	<bean id="oneHourTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="oneHourDetail" />
+		<property name="cronExpression" value="10 0 0/1 * * ?" />
+	</bean>
+	<!-- 3小时定时器 -->
+	<bean id="threeHoursTask" class="net.duckling.probe.ui.cron.CronTask"
+		parent="baseTask">
+		<property name="interval" value="180" />
+	</bean>
+	<bean id="threeHoursDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="threeHoursTask" />
+		<property name="targetMethod" value="doCollect" />
+	</bean>
+	<bean id="threeHoursTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="threeHoursDetail" />
+		<property name="cronExpression" value="10 0 0/3 * * ?" />
+	</bean>
+	<!-- 6小时定时器 -->
+	<bean id="sixHoursTask" class="net.duckling.probe.ui.cron.CronTask"
+		parent="baseTask">
+		<property name="interval" value="360" />
+	</bean>
+	<bean id="sixHoursDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="sixHoursTask" />
+		<property name="targetMethod" value="doCollect" />
+	</bean>
+	<bean id="sixHoursTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="sixHoursDetail" />
+		<property name="cronExpression" value="10 0 0/6 * * ?" />
+	</bean>
+	<!-- 12小时定时器 -->
+	<bean id="twelveHoursTask" class="net.duckling.probe.ui.cron.CronTask"
+		parent="baseTask">
+		<property name="interval" value="720" />
+	</bean>
+	<bean id="twelveHoursDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="twelveHoursTask" />
+		<property name="targetMethod" value="doCollect" />
+	</bean>
+	<bean id="twelveHoursTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="twelveHoursDetail" />
+		<property name="cronExpression" value="10 0 0/12 * * ?" />
+	</bean>
+	<!-- 1天定时器 -->
+	<bean id="oneDayTask" class="net.duckling.probe.ui.cron.CronTask"
+		parent="baseTask">
+		<property name="interval" value="1440" />
+	</bean>
+	<bean id="oneDayDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="oneDayTask" />
+		<property name="targetMethod" value="doCollect" />
+	</bean>
+	<bean id="oneDayTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="oneDayDetail" />
+		<property name="cronExpression" value="10 0 0 * * ?" />
+	</bean>
+	<!-- 设置调度 -->
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="fiveMinutesTrigger" />
+				<ref bean="tenMinutesTrigger" />
+				<ref bean="thirtyMinutesTrigger" />
+				<ref bean="oneHourTrigger" />
+				<ref bean="threeHoursTrigger" />
+				<ref bean="sixHoursTrigger" />
+				<ref bean="twelveHoursTrigger" />
+				<ref bean="oneDayTrigger" />
+			</list>
+		</property>
+		<property name="taskExecutor" ref="executor" />
+	</bean>
+</beans>

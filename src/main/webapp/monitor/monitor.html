@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="css/new-console.css">
+<link rel="stylesheet" type="text/css" href="css/cst.css">
+<title>监测情况</title>
+</head>
+
+<body>
+	<div class="consoleCon">
+		<div class="titlePanel">
+			最后更新 <span id="lastUpdate"></span>
+		</div>
+		<div class="titleSquare">服务概况</div>
+		<ul class="intro unstyled">
+			<li><span class="name">中国科技网通行证</span><span class="text">正常</span><span
+				class="normal"></span><span class="extra">用户数：<span
+					id="passport_count"></span>。
+			</span></li>
+			<li><span class="name">超级计算云服务</span><span class="text">正常</span><span
+				class="normal"></span><span class="extra">用户数：<span
+					id="compute_user_count"></span></span>。</li>
+			<li><span class="name">团队文档库</span><span class="text">正常</span><span
+				class="normal"></span><span class="extra">用户数：<span
+					id="ddl_usercount"></span>；团队数：<span id="team_count"></span>；资源数：<span
+					id="resource_count"></span>。
+			</span></li>
+			<li><span class="name">会议服务平台</span><span class="text">正常</span><span
+				class="normal"></span><span class="extra">注册用户数：<span
+					id="csp_user"></span>；会议数：<span id="csp_conf"></span>；单位/研究所：<span
+					id="csp_inst"></span>。
+			</span></li>
+			<li><span class="name">科研主页</span><span class="text">正常</span><span
+				class="normal"></span><span class="extra">用户数：<span
+					id="dhome_user"></span>；学术机构：<span id="dhome_inst"></span>。
+			</span></li>
+			<li><span class="name">组织通讯录</span><span class="text">正常</span><span
+				class="normal"></span><span class="extra">组织数：<span
+					id="vmt_orgCount"></span>； 开通科信的组织数：<span id="vmt_orgDchat"></span>；
+					群组数：<span id="vmt_groupCount"></span>。
+			</span></li>
+		</ul>
+		<div class="chartbox" style="height: 450px;">
+			<div class="main">
+				<div class="setview yyy" id="setview1">
+					<span class="seth">粒度</span> <span id="day_grading1"
+						class="day_grading setting spanactive">日粒度</span> <span
+						id="week_grading1" class="week_grading setting">周粒度</span> <span
+						id="month_grading1" class="month_grading setting">月粒度</span>  <span
+						id="year_grading1" class="year_grading setting">年粒度</span>
+						<span id="selector">监测项： <select name="检测项" id='legendSelector' onchange="changeLegendView(value)">
+							<option value="0">选择单项显示</option>
+						</select>
+						</span>
+				</div>
+				<div id="table1" class="table"></div>
+			</div>
+		</div>
+		<div class="chartbox" style="height: 350px;">
+			<div class="chartboxleft" id="supercompute" style="height: 350px;"></div>
+			<div class="chartboxright" id="scActiveApp" style="height: 350px;"></div>
+		</div>
+		<div class="chartbox" style="height: 300px;">
+			<div class="chartboxleft" id="ddlActiveUser" style="height: 300px;"></div>
+			<div class="chartboxright" id="ddlVisitByDay" style="height: 300px;"></div>
+		</div>
+		<div class="chartbox" style="height: 300px;">
+			<div class="chartboxleft" id="cspConfByMon" style="height: 300px;"></div>
+			<div class="chartboxright" id="cspUserReg" style="height: 300px;"></div>
+		</div>
+	</div>
+	<script src="js/echarts.js"></script>
+	<script type="text/javascript">
+    	require.config({
+	            paths: {
+	                echarts: 'js/dist'
+	            }
+	        });
+    </script>
+	<script type="text/javascript" src="js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="js/echarts-all.js"></script>
+	<script type="text/javascript" src="js/probe.js"></script>
+	<script type="text/javascript" src="js/passportChart.js"></script>
+	<script type="text/javascript" src="js/scChart2.js"></script>
+	<script type="text/javascript" src="js/ddlChart2.js"></script>
+	<script type="text/javascript" src="js/cspChart2.js"></script>
+	<script type="text/javascript" src="js/dhomeChart.js"></script>
+	<script type="text/javascript" src="js/vmtChart.js"></script>
+	<script type="text/javascript" src="js/table0.6.js"></script>
+</body>
